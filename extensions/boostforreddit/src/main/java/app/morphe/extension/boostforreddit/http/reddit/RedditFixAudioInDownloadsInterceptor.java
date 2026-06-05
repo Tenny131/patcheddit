@@ -21,6 +21,7 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -65,20 +66,9 @@ public class RedditFixAudioInDownloadsInterceptor implements Interceptor {
             String baseUrl = matcher.group(1);
 
             /*
-             * Old implementation tried:
-             *
-             *   GET https://v.redd.it/<id>
-             *   follow redirect
-             *   GET <redirected reddit post>/.json
-             *   parse media.reddit_video.dash_url
-             *
-             * That is brittle. If Reddit returns HTML/XML/error/redirect instead of JSON,
-             * audio retrieval fails with:
-             *
-             *   JsonParseException: Unexpected character '<'
-             *
-             * For v.redd.it we already know the media base URL, so go directly to the
-             * DASH/MPD manifest.
+             * The intercepted request already contains the v.redd.it media base URL,
+             * so use the DASH manifest directly instead of resolving the Reddit post
+             * JSON through the v.redd.it redirect path.
              */
             String dashUrl = baseUrl + "/DASHPlaylist.mpd";
 
@@ -93,8 +83,9 @@ public class RedditFixAudioInDownloadsInterceptor implements Interceptor {
                 }
             }
 
-
             return HttpUtils.get(baseUrl + "/" + audioFilename);
+        } catch (NoAudioTrackException e) {
+            return chain.proceed(request);
         } catch (Exception e) {
             LoggingUtils.logException(false, () -> "Failed to retrieve audio: " + e);
             return chain.proceed(request);
@@ -115,6 +106,8 @@ public class RedditFixAudioInDownloadsInterceptor implements Interceptor {
         */
 
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        dbFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         Document doc = dBuilder.parse(xmlDocumentStream);
         doc.getDocumentElement().normalize();
@@ -151,7 +144,7 @@ public class RedditFixAudioInDownloadsInterceptor implements Interceptor {
             return baseUrl;
         }
 
-        throw new RuntimeException("Unable to find matching audio track");
+        throw new NoAudioTrackException();
     }
 
     private boolean looksLikeAudioRepresentation(Element representation) {
@@ -178,5 +171,8 @@ public class RedditFixAudioInDownloadsInterceptor implements Interceptor {
     private boolean attributeStartsWith(Element element, String attributeName, String prefix) {
         String value = element.getAttribute(attributeName);
         return value != null && value.toLowerCase(Locale.ROOT).startsWith(prefix);
+    }
+
+    private static class NoAudioTrackException extends RuntimeException {
     }
 }
