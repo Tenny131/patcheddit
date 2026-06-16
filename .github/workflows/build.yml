@@ -1,0 +1,39 @@
+name: Build mpp
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply PR #73 and #86
+        run: |
+          git config user.email "build@local"
+          git config user.name "build"
+          git remote add upstream https://github.com/wchill/patcheddit.git
+          git fetch upstream pull/73/head:pr73
+          git fetch upstream pull/86/head:pr86
+          git cherry-pick f84c821 790793d
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - run: chmod +x gradlew
+
+      - name: Build
+        run: ./gradlew build
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: patcheddit-mpp
+          path: build/libs/*.mpp
