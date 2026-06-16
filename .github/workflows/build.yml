@@ -33,7 +33,10 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Find the mpp
+        run: find . -name "*.mpp" -not -path "*/.git/*"
+
       - uses: actions/upload-artifact@v4
         with:
           name: patcheddit-mpp
-          path: build/libs/*.mpp
+          path: '**/*.mpp'
