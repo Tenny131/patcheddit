@@ -1,3 +1,10 @@
+/*
+ * Copyright 2026 brealorg.
+ *
+ * This file is part of Breal Boost Hotfixes, a derivative work of Patcheddit.
+ * See the included NOTICE file for GPLv3 §7(b) and §7(c) terms that apply to this code.
+ */
+
 package app.morphe.extension.boostforreddit.giphy;
 
 import android.content.Context;
