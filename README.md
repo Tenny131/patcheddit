@@ -26,7 +26,7 @@ Do not use the normal GitHub project page as the Morphe source. The GitHub proje
 
 Current public bundle:
 
-`1.4.0-boost-hotfix.13`
+`1.4.0-boost-hotfix.14`
 
 Latest release asset:
 
@@ -34,9 +34,9 @@ Latest release asset:
 
 SHA256:
 
-`54af0a4c2f83c58a1f50fef9393369b140a14da271a3a6cb345722123ed93ff4`
+`98d977d363cab1afd21507b0a9fd245891bcfce2542ea486393f9209d473968c`
 
-Hotfix 13 was tested with:
+Hotfix 14 was tested with:
 
 - Boost for Reddit 1.12.12
 - Morphe Android app
@@ -74,9 +74,18 @@ Adds inline previews for direct `.gif` links, including links such as:
 
 `https://i.redd.it/example.gif`
 
-## Tested behavior in hotfix 13
+### Download completed notification visibility
 
-Hotfix 13 has been tested for:
+Moves completed download notifications to a separate default-importance Android notification channel.
+
+Behavior:
+
+- Progress/group download notifications remain on `80_downloads_channel` with LOW importance
+- Completed download notifications use `81_downloads_completed_channel` with DEFAULT importance
+
+## Tested behavior in hotfix 14
+
+Hotfix 14 has been tested for:
 
 - Public bundle download through Morphe
 - Patching a clean Boost 1.12.12 APK
@@ -86,6 +95,9 @@ Hotfix 13 has been tested for:
 - Comment collapse/expand behavior
 - Source/Open Giphy link behavior
 - Basic comment-thread scrolling
+- Download completed notification channel split
+- `80_downloads_channel` remains LOW
+- `81_downloads_completed_channel` is created as DEFAULT
 
 ## Upstream status
 
