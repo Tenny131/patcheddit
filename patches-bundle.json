@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-06-17T00:00:00",
-  "description": "Unofficial safe hotfix source for Boost for Reddit. Derived from Patcheddit. Includes v.redd.it video sharing/download audio fix, faster Giphy loading via direct media.giphy.com MP4 fallback, and restored fixed inline Giphy previews in comments. Attribution notices updated.",
-  "download_url": "https://github.com/brealorg/breal-boost-hotfixes/releases/download/boost-hotfix-12/patches-1.4.0.mpp",
-  "signature_download_url": "",
-  "version": "1.4.0-boost-hotfix.12"
+    "created_at": "2026-06-18T00:00:00",
+    "description": "Unofficial safe hotfix source for Boost for Reddit. Derived from Patcheddit. Includes v.redd.it video sharing/download audio fix, faster Giphy loading via direct media.giphy.com MP4 fallback, restored fixed inline Giphy previews in comments, improved inline preview layout/collapse behavior, and inline previews for direct GIF links such as i.redd.it/*.gif. Attribution notices updated.",
+    "download_url": "https://github.com/brealorg/breal-boost-hotfixes/releases/download/boost-hotfix-13/patches-1.4.0.mpp",
+    "signature_download_url": "",
+    "version": "1.4.0-boost-hotfix.13"
 }
