@@ -25,6 +25,9 @@ public final class InlineGiphyCommentPreview {
     private static final Pattern DIRECT_PREVIEW_URL_PATTERN =
             Pattern.compile("https?://(?:external-preview|preview)\\.redd\\.it/[^\\s\"'<>]+", Pattern.CASE_INSENSITIVE);
 
+    private static final Pattern DIRECT_GIF_URL_PATTERN =
+            Pattern.compile("https?://[^\\s\"'<>]+?\\.gif(?:\\?[^\\s\"'<>)]*)?", Pattern.CASE_INSENSITIVE);
+
     private static final Pattern[] GIPHY_PATTERNS = new Pattern[] {
             Pattern.compile("!\\[gif\\]\\(giphy\\|([A-Za-z0-9_-]+)\\)", Pattern.CASE_INSENSITIVE),
             Pattern.compile("giphy\\|([A-Za-z0-9_-]+)", Pattern.CASE_INSENSITIVE),
@@ -433,6 +436,12 @@ public final class InlineGiphyCommentPreview {
             return new PreviewSource(url, url);
         }
 
+        Matcher directGif = DIRECT_GIF_URL_PATTERN.matcher(normalized);
+        if (directGif.find()) {
+            String url = directGif.group();
+            return new PreviewSource(url, url);
+        }
+
         String giphyId = extractGiphyId(normalized);
         if (giphyId == null || giphyId.length() == 0) return null;
 
@@ -495,6 +504,7 @@ public final class InlineGiphyCommentPreview {
                 .replaceAll("(?i)https?://(?:www\\.)?giphy\\.com/gifs/\\S+", "")
                 .replaceAll("(?i)https?://media\\.giphy\\.com/media/[A-Za-z0-9_-]+/giphy\\.(?:gif|mp4)", "")
                 .replaceAll("(?i)https?://(?:external-preview|preview)\\.redd\\.it/\\S+", "")
+                .replaceAll("(?i)https?://[^\\s\"'<>]+?\\.gif(?:\\?[^\\s\"'<>)]*)?", "")
                 .trim();
     }
 
