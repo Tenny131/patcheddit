@@ -4,18 +4,26 @@ VERSION ?=
 TAG ?=
 EXTRA_GATE_ARGS ?=
 
-.PHONY: help status release-build release-gate verify-remote
+.PHONY: help status prepare-release release-build release-gate verify-remote
 
 help:
 > @echo "Targets:"
 > @echo "  make status"
 > @echo "  make release-build VERSION=1.4.22"
+> @echo "  make prepare-release VERSION=1.4.23 TAG=morphe-patches-23 CHANGELOG='...' EXTRA_PREPARE_ARGS='...'"
 > @echo "  make release-gate VERSION=1.4.22 TAG=morphe-patches-22 EXTRA_GATE_ARGS='...'"
 > @echo "  make verify-remote VERSION=1.4.22 TAG=morphe-patches-22"
 
 status:
 > git --no-pager status -sb
 > git --no-pager log --oneline --decorate -6
+
+
+prepare-release:
+> @test -n "$(VERSION)" || (echo "Usage: make prepare-release VERSION=1.4.23 TAG=morphe-patches-23 CHANGELOG='...'"; exit 1)
+> @test -n "$(TAG)" || (echo "Usage: make prepare-release VERSION=1.4.23 TAG=morphe-patches-23 CHANGELOG='...'"; exit 1)
+> @test -n "$(CHANGELOG)" || (echo "Usage: make prepare-release VERSION=1.4.23 TAG=morphe-patches-23 CHANGELOG='...'"; exit 1)
+> ./scripts/prepare-release.py --version "$(VERSION)" --tag "$(TAG)" --changelog "$(CHANGELOG)" $(EXTRA_PREPARE_ARGS)
 
 release-build:
 > @test -n "$(VERSION)" || (echo "Usage: make release-build VERSION=1.4.22"; exit 1)

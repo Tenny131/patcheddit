@@ -1,0 +1,319 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import re
+import subprocess
+import sys
+from datetime import datetime
+from pathlib import Path
+
+
+ROOT = Path.cwd()
+
+
+def read(path: Path) -> str:
+    return path.read_text(encoding="utf-8")
+
+
+def write(path: Path, text: str) -> None:
+    path.write_text(text, encoding="utf-8")
+
+
+def sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def run(cmd: list[str]) -> None:
+    print("+", " ".join(cmd))
+    subprocess.run(cmd, check=True)
+
+
+def parse_gradle_version(path: Path) -> str:
+    text = read(path)
+    match = re.search(r"(?m)^\s*version\s*=\s*([^\s#]+)\s*$", text)
+    if not match:
+        raise SystemExit("Could not find version = ... in gradle.properties")
+    return match.group(1)
+
+
+def default_tag_for(version: str) -> str:
+    release_number = version.split(".")[-1]
+    return f"morphe-patches-{release_number}"
+
+
+def mpp_name_for(version: str) -> str:
+    return f"patches-{version}.mpp"
+
+
+def normalize_changelog_line(line: str) -> str:
+    line = line.strip()
+    if line.startswith("- "):
+        line = line[2:].strip()
+    return line
+
+
+def replace_gradle_version(text: str, version: str) -> str:
+    new, count = re.subn(
+        r"(?m)^(\s*version\s*=\s*)[^\s#]+(\s*)$",
+        rf"\g<1>{version}\2",
+        text,
+        count=1,
+    )
+    if count != 1:
+        raise SystemExit("Could not replace version in gradle.properties")
+    return new
+
+
+def set_readme_heading_value(text: str, heading: str, value: str) -> str:
+    lines = text.splitlines()
+
+    for i, line in enumerate(lines):
+        if line.strip() == heading:
+            j = i + 1
+            while j < len(lines) and lines[j].strip() == "":
+                j += 1
+
+            replacement = f"`{value}`"
+
+            if j < len(lines):
+                lines[j] = replacement
+            else:
+                lines.append("")
+                lines.append(replacement)
+
+            return "\n".join(lines) + "\n"
+
+    raise SystemExit(f"Could not find README heading: {heading}")
+
+
+def set_readme_sha(text: str, sha: str) -> str:
+    return set_readme_heading_value(text, "SHA256:", sha)
+
+
+def update_description(description: str, tag: str, changelog_lines: list[str]) -> str:
+    release_number = tag.split("-")[-1]
+    lines = description.splitlines()
+
+    if lines:
+        if lines[0].startswith("Boost hotfix bundle "):
+            lines[0] = f"Boost hotfix bundle {release_number}"
+        else:
+            lines.insert(0, f"Boost hotfix bundle {release_number}")
+            lines.insert(1, "")
+    else:
+        lines = [
+            f"Boost hotfix bundle {release_number}",
+            "",
+            "Breal Morphe patch source.",
+            "",
+            "Use this as a Morphe patch source only. Clean APKs must be supplied separately:",
+            "- Boost for Reddit: 1.12.12",
+            "- Imgur: 7.33.0.0",
+            "",
+            "Boost fixes:",
+            "",
+            "Imgur compatibility is also included in this source.",
+        ]
+
+    try:
+        boost_index = next(i for i, line in enumerate(lines) if line.strip() == "Boost fixes:")
+    except StopIteration:
+        lines.extend(["", "Boost fixes:"])
+        boost_index = len(lines) - 1
+
+    insert_at = len(lines)
+    for i in range(boost_index + 1, len(lines)):
+        if lines[i].strip() == "":
+            insert_at = i
+            break
+
+    existing = {line.strip() for line in lines}
+    bullets_to_add: list[str] = []
+
+    for item in changelog_lines:
+        normalized = normalize_changelog_line(item)
+        if not normalized:
+            continue
+
+        bullet = f"- {normalized}"
+        if bullet not in existing:
+            bullets_to_add.append(bullet)
+            existing.add(bullet)
+
+    if bullets_to_add:
+        lines[insert_at:insert_at] = bullets_to_add
+
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def update_bundle_json(path: Path, version: str, tag: str, changelog_lines: list[str]) -> None:
+    data = json.loads(read(path))
+
+    mpp_name = mpp_name_for(version)
+    data["created_at"] = datetime.now().replace(microsecond=0).isoformat()
+    data["version"] = version
+    data["download_url"] = (
+        f"https://github.com/brealorg/breal-morphe-patches/releases/download/{tag}/{mpp_name}"
+    )
+    data["description"] = update_description(data.get("description", ""), tag, changelog_lines)
+
+    write(path, json.dumps(data, indent=2, ensure_ascii=False) + "\n")
+
+
+def update_readme(path: Path, version: str, tag: str, sha: str | None = None) -> None:
+    mpp_name = mpp_name_for(version)
+    text = read(path)
+
+    text = set_readme_heading_value(text, "Current public bundle:", version)
+    text = set_readme_heading_value(text, "Latest release asset:", mpp_name)
+    text = set_readme_heading_value(text, "Release tag:", tag)
+
+    if sha is not None:
+        text = set_readme_sha(text, sha)
+
+    write(path, text)
+
+
+def build_mpp(version: str) -> Path:
+    run(["./gradlew", "clean", ":patches:buildAndroid", "--no-daemon"])
+
+    mpp = ROOT / "patches" / "build" / "libs" / mpp_name_for(version)
+    if not mpp.exists():
+        raise SystemExit(f"Expected MPP was not built: {mpp}")
+
+    return mpp
+
+
+def run_release_gate(
+    version: str,
+    tag: str,
+    changelog_lines: list[str],
+    markers: list[str],
+    stale_values: list[str],
+) -> None:
+    cmd = [
+        sys.executable,
+        "scripts/release-gate.py",
+        "--version",
+        version,
+        "--tag",
+        tag,
+    ]
+
+    for line in changelog_lines:
+        normalized = normalize_changelog_line(line)
+        if normalized:
+            cmd.extend(["--require-description", normalized])
+
+    for marker in markers:
+        cmd.extend(["--marker", marker])
+
+    for stale in stale_values:
+        cmd.extend(["--stale", stale])
+
+    run(cmd)
+
+
+def print_summary(version: str, tag: str, mpp: Path | None, sha: str | None) -> None:
+    print()
+    print("===== prepare-release summary =====")
+    print("version:", version)
+    print("tag:", tag)
+    print("asset:", mpp_name_for(version))
+    if mpp is not None:
+        print("mpp:", mpp)
+    if sha is not None:
+        print("sha256:", sha)
+    print()
+    print("Next manual steps:")
+    print("  git --no-pager diff -- gradle.properties patches-bundle.json README.md")
+    print("  git add gradle.properties patches-bundle.json README.md")
+    print("  git commit -m \"Prepare patch bundle release <N>\"")
+    print("  git tag -a <tag> -m <tag>")
+    print("  git push origin main")
+    print("  git push origin <tag>")
+    print("  gh release create <tag> patches/build/libs/<asset> --title <tag> --notes-file <notes-file>")
+    print("  make verify-remote VERSION=<version> TAG=<tag>")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Prepare Morphe patch bundle release metadata and artifact.")
+    parser.add_argument("--version", required=True, help="New release version, e.g. 1.4.23")
+    parser.add_argument("--tag", help="Release tag. Defaults to morphe-patches-<patch version>.")
+    parser.add_argument("--changelog", action="append", default=[], help="Changelog line to add under Boost fixes. Can be repeated.")
+    parser.add_argument("--marker", action="append", default=[], help="Marker to require in extensions/boostforreddit.mpe. Can be repeated.")
+    parser.add_argument("--stale", action="append", default=[], help="Old value that must not remain in release metadata. Can be repeated.")
+    parser.add_argument("--allow-empty-changelog", action="store_true", help="Allow release without adding a changelog line.")
+    parser.add_argument("--skip-build", action="store_true", help="Do not run Gradle; use existing patches/build/libs artifact.")
+    parser.add_argument("--skip-gate", action="store_true", help="Do not run scripts/release-gate.py after preparing.")
+    parser.add_argument("--dry-run", action="store_true", help="Print intended values without changing files or building.")
+    args = parser.parse_args()
+
+    gradle_path = ROOT / "gradle.properties"
+    bundle_path = ROOT / "patches-bundle.json"
+    readme_path = ROOT / "README.md"
+
+    old_version = parse_gradle_version(gradle_path)
+    old_tag = default_tag_for(old_version)
+    old_mpp_name = mpp_name_for(old_version)
+
+    version = args.version
+    tag = args.tag or default_tag_for(version)
+
+    changelog_lines = [normalize_changelog_line(line) for line in args.changelog if normalize_changelog_line(line)]
+
+    if not changelog_lines and not args.allow_empty_changelog:
+        raise SystemExit("At least one --changelog line is required, unless --allow-empty-changelog is used.")
+
+    stale_values = list(args.stale)
+    if not stale_values and old_version != version:
+        stale_values = [
+            old_version,
+            old_tag,
+            old_mpp_name,
+        ]
+
+    print("===== prepare-release plan =====")
+    print("old version:", old_version)
+    print("new version:", version)
+    print("tag:", tag)
+    print("asset:", mpp_name_for(version))
+    print("stale checks:", ", ".join(stale_values) if stale_values else "(none)")
+    print("markers:", ", ".join(args.marker) if args.marker else "(none)")
+    print("changelog:")
+    for line in changelog_lines:
+        print(f" - {line}")
+
+    if args.dry_run:
+        print()
+        print("DRY RUN: no files changed, no build run.")
+        return 0
+
+    gradle_text = replace_gradle_version(read(gradle_path), version)
+    write(gradle_path, gradle_text)
+
+    update_bundle_json(bundle_path, version, tag, changelog_lines)
+    update_readme(readme_path, version, tag, sha=None)
+
+    if args.skip_build:
+        mpp = ROOT / "patches" / "build" / "libs" / mpp_name_for(version)
+        if not mpp.exists():
+            raise SystemExit(f"--skip-build was used, but MPP does not exist: {mpp}")
+    else:
+        mpp = build_mpp(version)
+
+    sha = sha256_file(mpp)
+    update_readme(readme_path, version, tag, sha=sha)
+
+    if not args.skip_gate:
+        run_release_gate(version, tag, changelog_lines, args.marker, stale_values)
+
+    print_summary(version, tag, mpp, sha)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
