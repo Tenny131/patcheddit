@@ -17,7 +17,7 @@ val shareSelectedMediaPatch = bytecodePatch(
         "Can share either the raw media/download URL or the Imgur item permalink.",
     default = true
 ) {
-    compatibleWith("com.imgur.mobile")
+    compatibleWith("com.imgur.mobile"("7.33.0.0"))
 
     val linkModeOption = stringOption(
         "link-mode",

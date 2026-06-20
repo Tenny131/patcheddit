@@ -19,7 +19,7 @@ val shareSelectedMediaFilePatch = bytecodePatch(
         "and is not saved permanently to /sdcard/Download/Imgur.",
     default = true
 ) {
-    compatibleWith("com.imgur.mobile")
+    compatibleWith("com.imgur.mobile"("7.33.0.0"))
 
     dependsOn(sharedExtensionPatch)
 
