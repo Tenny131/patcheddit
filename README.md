@@ -30,19 +30,19 @@ Do not use the normal GitHub project page as the Morphe source. The GitHub proje
 
 Current public bundle:
 
-`1.4.22`
+`1.4.23`
 
 Latest release asset:
 
-`patches-1.4.22.mpp`
+`patches-1.4.23.mpp`
 
 Release tag:
 
-`morphe-patches-22`
+`morphe-patches-23`
 
 SHA256:
 
-`1582a109faeb6d6e8a72d0f88f42666e931ad8a4b791d50cb20a371d38858435`
+`9e1f8842be2b09608f6b270e0f918b118fa19fdd14fdb3dc7b127833d2e14fe4`
 
 ## Included patches
 
@@ -61,19 +61,20 @@ Included Boost fixes:
 
 ### Imgur selected media sharing
 
-Tested against Imgur 7.33.0.
+Tested against Imgur 7.33.0.0.
 
 Included Imgur patches:
 
-- `Share selected media`
-  - makes direct media sharing use the selected media item instead of the parent gallery
-  - default mode shares the raw media/download URL
-  - optional mode shares the selected item permalink
-
-- `Share selected media file`
-  - replaces Imgur's Download share action with direct file sharing
+- selected media file sharing:
+  - long-pressing an image or video in post detail shares the actual selected media file
+  - opens Android's share sheet with the real image/video file, not just the parent Imgur link
+  - replaces Imgur's Download share action with direct private cached file sharing
   - caches selected media privately before opening Android's share sheet
   - does not permanently save the file to `/sdcard/Download/Imgur`
+- selected media URL sharing:
+  - default mode shares the raw media/download URL
+  - optional mode shares the selected item permalink
+  - keeps URL/link sharing separate from file sharing
 
 ## Compatibility and scope
 
@@ -82,7 +83,7 @@ This bundle is intended as a practical hotfix/source bundle for Morphe users. It
 Current known tested app versions:
 
 - Boost for Reddit 1.12.12
-- Imgur 7.33.0
+- Imgur 7.33.0.0
 
 ## Attribution
 

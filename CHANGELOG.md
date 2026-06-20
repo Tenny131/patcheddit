@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.23 - morphe-patches-23
+
+- Add Imgur 7.33.0.0 post-detail long-press file sharing: long-pressing an image or video now opens Android's share sheet with the actual selected media file instead of only sharing the parent Imgur link.
+- Replace Imgur's Download share action with direct private cached file sharing.
+- Keep Imgur URL/link sharing separate from file sharing; selected-media URL sharing remains available.
+- Includes previous Boost fixes from 1.4.22.
+
 ## 1.4.22 - morphe-patches-22
 
 - Fix Boost opening Reddit comment video player links in WebView by normalizing reddit.com/link/.../video/.../player URLs to v.redd.it so they open in Boost's native video player.
