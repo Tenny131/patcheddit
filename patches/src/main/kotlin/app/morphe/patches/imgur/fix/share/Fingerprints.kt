@@ -46,3 +46,17 @@ internal val getDirectImageLinkInitialIntentsFingerprint = Fingerprint(
         "Ljava/util/List;"
     )
 )
+
+internal val mediaItemsActionsOnLongPressFingerprint = Fingerprint(
+    definingClass = "Lcom/imgur/mobile/newpostdetail/detail/presentation/view/post/viewholder/MediaItemsActions;",
+    name = "onLongPress",
+    returnType = "V",
+    parameters = emptyList()
+)
+
+internal val mediaViewHolderOnLongPressFingerprint = Fingerprint(
+    definingClass = "Lcom/imgur/mobile/newpostdetail/detail/presentation/view/post/viewholder/MediaViewHolder;",
+    name = "onLongPress",
+    returnType = "V",
+    parameters = emptyList()
+)

@@ -25,6 +25,17 @@ public final class ShareMediaFile {
     private ShareMediaFile() {
     }
 
+    public static void share(final Context context, final String urlString) {
+        if (context instanceof Activity) {
+            share((Activity) context, urlString);
+            return;
+        }
+
+        if (context != null) {
+            Toast.makeText(context.getApplicationContext(), "Cannot share media from this screen", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     public static void share(final Activity activity, final String urlString) {
         if (activity == null) {
             return;
@@ -32,7 +43,7 @@ public final class ShareMediaFile {
 
         if (urlString == null || urlString.trim().isEmpty()) {
             toast(activity, "No media URL found");
-            activity.finish();
+            finishIfTransientShareActionsActivity(activity);
             return;
         }
 
@@ -59,7 +70,7 @@ public final class ShareMediaFile {
                         @Override
                         public void run() {
                             toast(activity, "Share failed");
-                            activity.finish();
+                            finishIfTransientShareActionsActivity(activity);
                         }
                     });
                 }
@@ -87,14 +98,40 @@ public final class ShareMediaFile {
                     Intent chooser = Intent.createChooser(send, "Share media file");
                     chooser.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-                    activity.startActivity(chooser);
+                    if (isTransientShareActionsActivity(activity)) {
+                        activity.startActivity(chooser);
+                    } else {
+                        /*
+                         * Long-press is invoked from Imgur's post/detail Activity.
+                         * Start the resolver in a separate task so closing Android's
+                         * share sheet returns to the existing Imgur task instead of
+                         * dropping the user to launcher.
+                         */
+                        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        activity.getApplicationContext().startActivity(chooser);
+                    }
                 } catch (Throwable throwable) {
                     toast(activity, "Share failed");
                 } finally {
-                    activity.finish();
+                    finishIfTransientShareActionsActivity(activity);
                 }
             }
         });
+    }
+
+    private static boolean isTransientShareActionsActivity(Activity activity) {
+        if (activity == null) {
+            return false;
+        }
+
+        String className = activity.getClass().getName();
+        return "com.imgur.mobile.common.ui.share.ShareActionsActivity".equals(className);
+    }
+
+    private static void finishIfTransientShareActionsActivity(Activity activity) {
+        if (isTransientShareActionsActivity(activity)) {
+            activity.finish();
+        }
     }
 
     private static void download(String urlString, File target) throws Exception {

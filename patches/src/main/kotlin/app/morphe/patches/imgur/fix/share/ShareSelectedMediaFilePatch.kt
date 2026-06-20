@@ -15,7 +15,8 @@ private const val EXTENSION_CLASS_DESCRIPTOR =
 @Suppress("unused")
 val shareSelectedMediaFilePatch = bytecodePatch(
     name = "Share selected media file",
-    description = "Replaces Imgur's Download share action with direct file sharing. " +
+    description = "Makes Imgur post-detail media long-press share the selected media file. " +
+        "Also replaces Imgur's Download share action with direct file sharing. " +
         "The selected media is cached privately, shared with Android's share sheet, " +
         "and is not saved permanently to /sdcard/Download/Imgur.",
     default = true
@@ -25,6 +26,47 @@ val shareSelectedMediaFilePatch = bytecodePatch(
     dependsOn(sharedExtensionPatch)
 
     execute {
+        // breal patch: patch long-press callsites directly instead of ShareUtils$Companion.
+        // MediaItemsActions.onLongPress registers at ShareUtils call:
+        // v1 = Context, v7 = mediaLink / raw selected media URL.
+        val mediaItemsActionsMethod = mediaItemsActionsOnLongPressFingerprint.method
+        val mediaItemsActionsShareCallIndex = mediaItemsActionsMethod.indexOfFirstInstructionOrThrow {
+            val reference = getReference<MethodReference>() ?: return@indexOfFirstInstructionOrThrow false
+            reference.definingClass == "Lcom/imgur/mobile/common/ui/share/ShareUtils${'$'}Companion;" &&
+                reference.name == "shareDirectImageLink" &&
+                reference.parameterTypes.size == 12
+        }
+
+        mediaItemsActionsMethod.addInstructions(
+            mediaItemsActionsShareCallIndex,
+            """
+                # breal patch: MediaItemsActions long-press shares the actual selected media file.
+                invoke-static {v1, v7}, $EXTENSION_CLASS_DESCRIPTOR->share(Landroid/content/Context;Ljava/lang/String;)V
+
+                return-void
+            """
+        )
+
+        // MediaViewHolder.onLongPress registers at ShareUtils call:
+        // v3 = Context, v9 = mediaLink / raw selected media URL.
+        val mediaViewHolderMethod = mediaViewHolderOnLongPressFingerprint.method
+        val mediaViewHolderShareCallIndex = mediaViewHolderMethod.indexOfFirstInstructionOrThrow {
+            val reference = getReference<MethodReference>() ?: return@indexOfFirstInstructionOrThrow false
+            reference.definingClass == "Lcom/imgur/mobile/common/ui/share/ShareUtils${'$'}Companion;" &&
+                reference.name == "shareDirectImageLink" &&
+                reference.parameterTypes.size == 12
+        }
+
+        mediaViewHolderMethod.addInstructions(
+            mediaViewHolderShareCallIndex,
+            """
+                # breal patch: MediaViewHolder long-press shares the actual selected media file.
+                invoke-static {v3, v9}, $EXTENSION_CLASS_DESCRIPTOR->share(Landroid/content/Context;Ljava/lang/String;)V
+
+                return-void
+            """
+        )
+
         val downloadMethod = shareActionsOnDownloadImageIntentFingerprint.method
 
         val insertIndex = downloadMethod.indexOfFirstInstructionOrThrow {
