@@ -1,20 +1,24 @@
-# Breal Boost Hotfixes
+# Breal Morphe Patches
 
-Unofficial Morphe patch source for **Boost for Reddit 1.12.12**.
+Unofficial Morphe patch bundle for supported Android apps.
 
-This repository provides temporary hotfix builds for Boost while selected Boost-specific fixes are pending upstream review or are being tested separately from the main Patcheddit bundle.
-
-This is not an official Boost for Reddit project, and it is not intended to permanently replace Patcheddit.
+This repository currently includes Boost for Reddit hotfixes and Imgur selected media sharing patches. It is derived from Patcheddit/Morphe patch work and is not an official project for any of the patched apps.
 
 ## Project page
 
-GitHub repository:
+Canonical GitHub repository:
 
-`https://github.com/brealorg/breal-boost-hotfixes`
+`https://github.com/brealorg/breal-morphe-patches`
+
+Legacy repository URLs under `breal-boost-hotfixes` currently redirect here for backwards compatibility. Do not recreate a new repository with the old name, because that may break existing redirects.
 
 ## Morphe patch source
 
 Use this source in Morphe:
+
+`https://raw.githubusercontent.com/brealorg/breal-morphe-patches/main/patches-bundle.json`
+
+Legacy source URL, kept working through GitHub redirect:
 
 `https://raw.githubusercontent.com/brealorg/breal-boost-hotfixes/main/patches-bundle.json`
 
@@ -26,109 +30,66 @@ Do not use the normal GitHub project page as the Morphe source. The GitHub proje
 
 Current public bundle:
 
-`1.4.0-boost-hotfix.14`
+`1.4.0-morphe-patches.16`
 
 Latest release asset:
 
 `patches-1.4.0.mpp`
 
+Release tag:
+
+`morphe-patches-16`
+
 SHA256:
 
-`98d977d363cab1afd21507b0a9fd245891bcfce2542ea486393f9209d473968c`
+`9fb6b2a383fd6a625f10de5d84b51023229afbf2a565e5c14cb8a5633347fbb2`
 
-Hotfix 14 was tested with:
+## Included patches
+
+### Boost for Reddit hotfixes
+
+Tested against Boost for Reddit 1.12.12.
+
+Included Boost fixes:
+
+- v.redd.it video sharing/download audio fix
+- faster Giphy loading via direct `media.giphy.com` MP4 fallback
+- inline Giphy previews in comments
+- inline previews for direct `.gif` links such as `i.redd.it/*.gif`
+- improved inline preview layout/collapse behavior
+- completed download notifications on a separate default-importance Android notification channel while progress notifications remain low-priority
+
+### Imgur selected media sharing
+
+Tested against Imgur 7.33.0.
+
+Included Imgur patches:
+
+- `Share selected media`
+  - makes direct media sharing use the selected media item instead of the parent gallery
+  - default mode shares the raw media/download URL
+  - optional mode shares the selected item permalink
+
+- `Share selected media file`
+  - replaces Imgur's Download share action with direct file sharing
+  - caches selected media privately before opening Android's share sheet
+  - does not permanently save the file to `/sdcard/Download/Imgur`
+
+## Compatibility and scope
+
+This bundle is intended as a practical hotfix/source bundle for Morphe users. It is not guaranteed to be stable across app versions other than the versions tested.
+
+Current known tested app versions:
 
 - Boost for Reddit 1.12.12
-- Morphe Android app
-- Clean Boost APK from APKMirror
-- Public GitHub release bundle
-- In-app functional testing
-
-## Included Boost hotfixes
-
-### v.redd.it audio fix
-
-Fixes Boost sharing/downloading Reddit videos where audio retrieval fails with errors such as:
-
-- `Failed to retrieve audio`
-- `JsonParseException: Unexpected character '<'`
-
-### Slow Giphy loading fix
-
-Fixes very slow Giphy loading by bypassing Boost's old broken/slow Giphy resolver and using a direct media fallback:
-
-`https://media.giphy.com/media/<id>/giphy.mp4`
-
-### Inline Giphy previews in comments
-
-Restores inline Giphy previews in Boost comment threads.
-
-Behavior:
-
-- Tap the preview area to collapse/expand the comment
-- Tap the source/Open Giphy line to open the external source
-
-### Direct GIF previews in comments
-
-Adds inline previews for direct `.gif` links, including links such as:
-
-`https://i.redd.it/example.gif`
-
-### Download completed notification visibility
-
-Moves completed download notifications to a separate default-importance Android notification channel.
-
-Behavior:
-
-- Progress/group download notifications remain on `80_downloads_channel` with LOW importance
-- Completed download notifications use `81_downloads_completed_channel` with DEFAULT importance
-
-## Tested behavior in hotfix 14
-
-Hotfix 14 has been tested for:
-
-- Public bundle download through Morphe
-- Patching a clean Boost 1.12.12 APK
-- APK build/sign/install through Morphe
-- Giphy inline previews
-- Direct `i.redd.it/*.gif` inline previews
-- Comment collapse/expand behavior
-- Source/Open Giphy link behavior
-- Basic comment-thread scrolling
-- Download completed notification channel split
-- `80_downloads_channel` remains LOW
-- `81_downloads_completed_channel` is created as DEFAULT
-
-## Upstream status
-
-This repository is intended as a temporary hotfix source.
-
-Relevant work has been opened upstream where appropriate:
-
-- Boost video audio fix: upstream PR exists
-- Slow Giphy loading fix: upstream PR exists
-- Inline Giphy/direct GIF preview fix: upstream draft PR exists
-
-The goal is not to replace Patcheddit permanently, but to provide a working Boost-specific source while fixes are being tested or reviewed.
-
-## Important usage notes
-
-Use your own clean Boost APK as input.
-
-Do not install random pre-patched APKs from strangers.
-
-If installation fails because of a signature conflict, uninstall the existing Boost installation first or test on a separate device/profile. Uninstalling may remove local app data.
-
-This repository is unofficial and provided as-is.
+- Imgur 7.33.0
 
 ## Attribution
 
-This repository is derived from Patcheddit.
+This repository is derived from Patcheddit/Morphe patch work.
 
-Original work, upstream patch structure, and inherited patches belong to their respective authors.
+Author metadata in the patch bundle currently credits:
 
-Additional Boost-specific hotfix modifications in this fork are maintained separately until they are no longer needed or are superseded upstream.
+`wchill + brealorg`
 
-## License
-
-GPL-3.0, following the upstream project license.
+Additional license conditions under GPL section 7 apply. See `LICENSE` for attribution and project name restrictions.
