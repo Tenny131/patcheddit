@@ -1,9 +1,12 @@
 package app.morphe.extension.boostforreddit.giphy;
 
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -25,6 +28,7 @@ public final class InlineGiphyCommentPreview {
 
 
     private static final String PREVIEW_TAG = "morphe_boost_inline_giphy_preview";
+    private static final String LOG_TAG = "InlineGiphy";
     private static final Map<Object, PreviewSource> PREVIEW_SOURCES = new WeakHashMap<>();
 
     private static final Pattern DIRECT_PREVIEW_URL_PATTERN =
@@ -118,26 +122,22 @@ public final class InlineGiphyCommentPreview {
                     ViewGroup.LayoutParams.WRAP_CONTENT
             ));
 
-            View.OnClickListener sourceClickListener = new View.OnClickListener() {
+            View.OnClickListener mediaClickListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    try {
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(sourceUrl));
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        view.getContext().startActivity(intent);
-                    } catch (Throwable throwable) {
-                    }
+                    openInBoostViewerOrFallback(view, gifUrl, sourceUrl);
                 }
             };
 
             container.setClickable(false);
             container.setFocusable(false);
-            imageView.setClickable(false);
-            imageView.setFocusable(false);
+            imageView.setClickable(true);
+            imageView.setFocusable(true);
             label.setClickable(true);
             label.setFocusable(true);
 
-            label.setOnClickListener(sourceClickListener);
+            imageView.setOnClickListener(mediaClickListener);
+            label.setOnClickListener(mediaClickListener);
 
             if (!insertBelowCommentText(holder, (ViewGroup) itemView, container)) return;
             loadWithGlide(context, glideRequestManager, gifUrl, imageView);
@@ -354,6 +354,181 @@ public final class InlineGiphyCommentPreview {
         }
 
         return null;
+    }
+
+    private static void openInBoostViewerOrFallback(View view, String mediaUrl, String sourceUrl) {
+        Context context = view.getContext();
+        String internalUrl = firstNonEmpty(mediaUrl, sourceUrl);
+        String externalUrl = firstNonEmpty(sourceUrl, mediaUrl);
+
+        try {
+            Activity activity = findActivity(context);
+
+            if (activity != null && openViaBoostRouter(activity, internalUrl)) {
+                return;
+            }
+
+            Log.w(LOG_TAG, "Boost internal router unavailable/failed, falling back");
+        } catch (Throwable throwable) {
+            Log.w(LOG_TAG, "Boost internal router threw, falling back", throwable);
+        }
+
+        openExternally(context, externalUrl);
+    }
+
+    private static boolean openViaBoostRouter(Activity activity, String url) {
+        if (activity == null || url == null || url.length() == 0) return false;
+
+        try {
+            Class<?> submissionClass = Class.forName("com.rubenmayayo.reddit.models.reddit.SubmissionModel");
+            Object submission = submissionClass.getDeclaredConstructor().newInstance();
+
+            boolean animated = isLikelyAnimatedMediaUrl(url);
+
+            // Known from Boost's own GalleryActivity/ImageActivity paths:
+            // K2(4) = static image-ish media
+            // K2(5) = gif/video-ish media
+            callIntSetter(submission, "K2", animated ? 5 : 4);
+            callStringSetter(submission, "L2", url);
+
+            if (animated) {
+                callStringSetter(submission, "u2", url);
+            }
+
+            Class<?> navigationClass = Class.forName("com.rubenmayayo.reddit.ui.activities.i");
+
+            Method[] methods = navigationClass.getMethods();
+            for (Method method : methods) {
+                if (!"U".equals(method.getName())) continue;
+
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                if (parameterTypes.length != 2) continue;
+                if (!parameterTypes[0].isAssignableFrom(activity.getClass())) continue;
+                if (!parameterTypes[1].isAssignableFrom(submissionClass)) continue;
+
+                method.setAccessible(true);
+                method.invoke(null, activity, submission);
+                return true;
+            }
+        } catch (Throwable throwable) {
+            Log.w(LOG_TAG, "openViaBoostRouter failed", throwable);
+        }
+
+        return false;
+    }
+
+    private static Activity findActivity(Context context) {
+        Context current = context;
+        while (current != null) {
+            if (current instanceof Activity) {
+                return (Activity) current;
+            }
+
+            if (current instanceof ContextWrapper) {
+                Context base = ((ContextWrapper) current).getBaseContext();
+                if (base == current) {
+                    return null;
+                }
+                current = base;
+                continue;
+            }
+
+            return null;
+        }
+
+        return null;
+    }
+
+    private static void openExternally(Context context, String url) {
+        if (context == null || url == null || url.length() == 0) return;
+
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            if (!(context instanceof Activity)) {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            }
+            context.startActivity(intent);
+        } catch (Throwable throwable) {
+            Log.w(LOG_TAG, "openExternally failed", throwable);
+        }
+    }
+
+    private static String firstNonEmpty(String first, String second) {
+        if (first != null && first.length() > 0) return first;
+        if (second != null && second.length() > 0) return second;
+        return null;
+    }
+
+    private static boolean isLikelyAnimatedMediaUrl(String url) {
+        if (url == null) return false;
+
+        String lower = url.toLowerCase();
+        return lower.endsWith(".gif")
+                || lower.contains(".gif?")
+                || lower.endsWith(".gifv")
+                || lower.contains(".gifv?")
+                || lower.endsWith(".mp4")
+                || lower.contains(".mp4?")
+                || lower.endsWith(".webm")
+                || lower.contains(".webm?")
+                || lower.contains("giphy.com")
+                || lower.contains("media.giphy.com")
+                || lower.contains("gfycat.com")
+                || lower.contains("redgifs.com");
+    }
+
+    private static boolean callIntSetter(Object target, String name, int value) {
+        try {
+            Method method = target.getClass().getMethod(name, int.class);
+            method.setAccessible(true);
+            method.invoke(target, value);
+            return true;
+        } catch (Throwable ignored) {
+        }
+
+        try {
+            Method[] methods = target.getClass().getMethods();
+            for (Method method : methods) {
+                if (!name.equals(method.getName())) continue;
+
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                if (parameterTypes.length != 1 || parameterTypes[0] != int.class) continue;
+
+                method.setAccessible(true);
+                method.invoke(target, value);
+                return true;
+            }
+        } catch (Throwable ignored) {
+        }
+
+        return false;
+    }
+
+    private static boolean callStringSetter(Object target, String name, String value) {
+        try {
+            Method method = target.getClass().getMethod(name, String.class);
+            method.setAccessible(true);
+            method.invoke(target, value);
+            return true;
+        } catch (Throwable ignored) {
+        }
+
+        try {
+            Method[] methods = target.getClass().getMethods();
+            for (Method method : methods) {
+                if (!name.equals(method.getName())) continue;
+
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                if (parameterTypes.length != 1 || parameterTypes[0] != String.class) continue;
+
+                method.setAccessible(true);
+                method.invoke(target, value);
+                return true;
+            }
+        } catch (Throwable ignored) {
+        }
+
+        return false;
     }
 
     private static void loadWithGlide(Context context, Object glideRequestManager, String url, ImageView imageView) {
