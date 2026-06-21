@@ -391,6 +391,10 @@ public final class InlineGiphyCommentPreview {
             callIntSetter(submission, "K2", animated ? 5 : 4);
             callStringSetter(submission, "L2", url);
 
+            if (!animated && openStaticImageViaBoost(activity, submissionClass, submission)) {
+                return true;
+            }
+
             if (animated) {
                 callStringSetter(submission, "u2", url);
             }
@@ -412,6 +416,26 @@ public final class InlineGiphyCommentPreview {
             }
         } catch (Throwable throwable) {
             Log.w(LOG_TAG, "openViaBoostRouter failed", throwable);
+        }
+
+        return false;
+    }
+
+    private static boolean openStaticImageViaBoost(Activity activity, Class<?> submissionClass, Object submission) {
+        if (activity == null || submissionClass == null || submission == null) return false;
+
+        try {
+            Class<?> navigationClass = Class.forName("com.rubenmayayo.reddit.ui.activities.i");
+            Method method = navigationClass.getMethod("h", Context.class, submissionClass, boolean.class);
+            method.setAccessible(true);
+
+            Object intent = method.invoke(null, activity, submission, true);
+            if (intent instanceof Intent) {
+                activity.startActivity((Intent) intent);
+                return true;
+            }
+        } catch (Throwable throwable) {
+            Log.w(LOG_TAG, "openStaticImageViaBoost failed", throwable);
         }
 
         return false;
