@@ -7,12 +7,14 @@ This document defines the local Boost test layout and prevents accidental overwr
 | Package | Role | Rule |
 | --- | --- | --- |
 | `com.rubenmayayo.reddit` | Normal user app | Do not touch unless explicitly approved. |
-| `com.rubenmayayo.reddit.dev` | Canonical working auth baseline | Do not overwrite, uninstall, reinstall, force-clear, or use as experiment target unless explicitly approved. |
-| Any other `com.rubenmayayo.reddit.*` package | Temporary experiment slot | Must be created deliberately, named explicitly, tested, archived, and removed when done. |
+| `com.rubenmayayo.reddit.dev` | Active DEV lane | All Boost development/runtime testing happens here. Before overwriting it, ensure a known-good rollback APK is archived. |
+| Any other `com.rubenmayayo.reddit.*` package | Avoid | Do not create extra app variants unless there is a specific, explicit reason. |
 
-## Canonical auth baseline
+## DEV lane and known-good auth baseline
 
-Current baseline:
+The active development package is `com.rubenmayayo.reddit.dev`.
+
+The current known-good rollback baseline is:
 
 - Package: `com.rubenmayayo.reddit.dev`
 - Label: `Boost DEV`
@@ -38,7 +40,7 @@ Not present:
 - inline Giphy patch
 - static image viewer patch
 
-The baseline APK is archived locally under:
+The known-good rollback APK is archived locally under:
 
 - `local-artifacts/apk-archive/*-working-dev-auth-baseline/`
 
@@ -64,7 +66,9 @@ This candidate is useful for static validation and release-gate input, but it is
 
 ## Runtime test policy
 
-Runtime testing must not silently create a growing set of app variants.
+Runtime testing happens in the DEV lane: `com.rubenmayayo.reddit.dev`.
+
+Do not silently create a growing set of app variants.
 
 Allowed strategies:
 
@@ -74,20 +78,22 @@ Use this when checking build integrity, metadata, markers, target SDK, permissio
 
 This does not prove runtime behavior.
 
-### Strategy B: single temporary runtime slot
+### Strategy B: DEV-lane runtime testing
 
-Use exactly one temporary package name, for example:
-
-- `com.rubenmayayo.reddit.devtest`
+Use `com.rubenmayayo.reddit.dev` for runtime testing.
 
 Rules:
 
-- Confirm the canonical auth baseline still exists before install.
 - Confirm the normal package still exists before install.
-- Install only the temporary slot.
+- Confirm a known-good DEV rollback APK exists in `local-artifacts/apk-archive/`.
+- Build the candidate from clean Boost.
+- Rewrite the candidate package to `com.rubenmayayo.reddit.dev`.
+- Preserve the launcher label `Boost DEV`.
+- Sign with the DEV test keystore so `adb install -r` can preserve app data.
+- Install over `com.rubenmayayo.reddit.dev`.
 - Test login, media routing, downloads, notifications, Crashlytics noise, and logcat.
 - Archive the tested APK and logs.
-- Remove the temporary slot after testing unless explicitly kept.
+- If the candidate fails, reinstall the known-good rollback APK from the APK archive.
 
 ### Strategy C: normal package replacement
 
@@ -131,10 +137,10 @@ For Crashlytics changes, runtime validation must include:
 
 Default strategy from this point:
 
-- Keep `com.rubenmayayo.reddit`.
-- Keep `com.rubenmayayo.reddit.dev`.
+- Keep `com.rubenmayayo.reddit` untouched.
+- Use `com.rubenmayayo.reddit.dev` as the active DEV lane.
 - Build candidates APK-only first.
 - Archive candidates locally.
-- Runtime-test only with one temporary slot.
-- Runtime install requires explicit install approval.
-- Remove the temporary slot after test unless explicitly kept.
+- Runtime-test by installing over `com.rubenmayayo.reddit.dev`.
+- Before overwriting DEV, verify that a known-good rollback APK exists.
+- Do not create extra app variants by default.
