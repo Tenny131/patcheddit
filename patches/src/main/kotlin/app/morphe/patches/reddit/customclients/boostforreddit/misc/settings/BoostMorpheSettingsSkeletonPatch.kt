@@ -7,7 +7,7 @@ import app.morphe.patches.reddit.customclients.boostforreddit.BoostCompatible
 @Suppress("unused")
 val boostMorpheSettingsSkeletonPatch = resourcePatch(
     name = "Boost Morphe settings skeleton",
-    description = "Dev-only Boost Morphe settings UI with inline preview enable toggle.",
+    description = "Dev-only Boost Morphe settings UI with inline preview enable and source-text toggles.",
     default = false
 ) {
     compatibleWith(*BoostCompatible)

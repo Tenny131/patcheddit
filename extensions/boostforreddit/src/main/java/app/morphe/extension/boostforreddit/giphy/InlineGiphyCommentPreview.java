@@ -31,7 +31,10 @@ public final class InlineGiphyCommentPreview {
     private static final String LOG_TAG = "InlineGiphy";
     private static final String PREF_INLINE_MEDIA_PREVIEWS_ENABLED =
             "morphe_boost_inline_media_previews_enabled";
+    private static final String PREF_INLINE_MEDIA_PREVIEW_SHOW_SOURCE_TEXT =
+            "morphe_boost_inline_media_preview_show_source_text";
     private static final boolean DEFAULT_INLINE_MEDIA_PREVIEWS_ENABLED = true;
+    private static final boolean DEFAULT_INLINE_MEDIA_PREVIEW_SHOW_SOURCE_TEXT = false;
     private static final Map<Object, PreviewSource> PREVIEW_SOURCES = new WeakHashMap<>();
 
     private static final Pattern DIRECT_PREVIEW_URL_PATTERN =
@@ -80,7 +83,9 @@ public final class InlineGiphyCommentPreview {
 
             PREVIEW_SOURCES.put(commentModel, previewSource);
 
-            replaceGiphyStringFields(commentModel);
+            if (!isSourceTextWithPreviewEnabled(context)) {
+                replaceGiphyStringFields(commentModel);
+            }
         } catch (Throwable throwable) {
         }
     }
@@ -200,6 +205,26 @@ public final class InlineGiphyCommentPreview {
             );
         } catch (Throwable ignored) {
             return DEFAULT_INLINE_MEDIA_PREVIEWS_ENABLED;
+        }
+    }
+
+    private static boolean isSourceTextWithPreviewEnabled(Context context) {
+        if (context == null) {
+            return DEFAULT_INLINE_MEDIA_PREVIEW_SHOW_SOURCE_TEXT;
+        }
+
+        try {
+            android.content.SharedPreferences preferences = context.getSharedPreferences(
+                    context.getPackageName() + "_preferences",
+                    Context.MODE_PRIVATE
+            );
+
+            return preferences.getBoolean(
+                    PREF_INLINE_MEDIA_PREVIEW_SHOW_SOURCE_TEXT,
+                    DEFAULT_INLINE_MEDIA_PREVIEW_SHOW_SOURCE_TEXT
+            );
+        } catch (Throwable ignored) {
+            return DEFAULT_INLINE_MEDIA_PREVIEW_SHOW_SOURCE_TEXT;
         }
     }
 
