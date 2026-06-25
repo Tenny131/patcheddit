@@ -7,7 +7,7 @@ import app.morphe.patches.reddit.customclients.boostforreddit.BoostCompatible
 @Suppress("unused")
 val boostMorpheSettingsSkeletonPatch = resourcePatch(
     name = "Boost Morphe settings skeleton",
-    description = "Dev-only visible Boost Morphe settings entry. Does not change Boost runtime behavior.",
+    description = "Dev-only Boost Morphe settings UI. Does not change Boost runtime behavior.",
     default = false
 ) {
     compatibleWith(*BoostCompatible)
@@ -19,10 +19,22 @@ val boostMorpheSettingsSkeletonPatch = resourcePatch(
                 <?xml version="1.0" encoding="utf-8"?>
                 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
                     <PreferenceCategory android:title="Morphe">
+                        <CheckBoxPreference
+                            android:key="morphe_boost_inline_media_previews_enabled"
+                            android:title="Enable inline media previews"
+                            android:summary="Show supported media previews directly in comments."
+                            android:defaultValue="true" />
+
                         <Preference
-                            android:key="morphe_boost_settings_skeleton_marker"
-                            android:title="Morphe dev skeleton"
-                            android:summary="Build-only resource skeleton. No runtime behavior is changed." />
+                            android:key="morphe_boost_inline_media_preview_alignment"
+                            android:title="Preview alignment"
+                            android:summary="Center" />
+
+                        <CheckBoxPreference
+                            android:key="morphe_boost_inline_media_preview_show_source_text"
+                            android:title="Show source text with preview"
+                            android:summary="Keep the original link text visible with the preview."
+                            android:defaultValue="false" />
                     </PreferenceCategory>
                 </PreferenceScreen>
                 """.trimIndent()
@@ -70,10 +82,23 @@ val boostMorpheSettingsSkeletonPatch = resourcePatch(
                         android:fragment="com.rubenmayayo.reddit.ui.preferences.v2.PreferenceFragmentMiscCompat" />
 
                     <PreferenceCategory android:title="Morphe">
+                        <CheckBoxPreference
+                            android:key="morphe_boost_inline_media_previews_enabled"
+                            android:title="Enable inline media previews"
+                            android:summary="Show supported media previews directly in comments."
+                            android:defaultValue="true" />
+
                         <Preference
-                            android:key="morphe_boost_media_previews_entry"
-                            android:title="Media previews"
-                            android:summary="Dev placeholder. No behavior is changed." />
+                            android:key="morphe_boost_inline_media_preview_alignment"
+                            android:icon="@drawable/ic_photo_outline_24dp"
+                            android:title="Preview alignment"
+                            android:summary="Center" />
+
+                        <CheckBoxPreference
+                            android:key="morphe_boost_inline_media_preview_show_source_text"
+                            android:title="Show source text with preview"
+                            android:summary="Keep the original link text visible with the preview."
+                            android:defaultValue="false" />
                     </PreferenceCategory>
                 </PreferenceScreen>
                 """.trimIndent()
