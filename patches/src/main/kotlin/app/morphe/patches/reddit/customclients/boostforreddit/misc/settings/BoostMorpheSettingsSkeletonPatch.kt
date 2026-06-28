@@ -33,6 +33,30 @@ val boostMorpheSettingsSkeletonPatch = resourcePatch(
                             android:dialogTitle="Preview alignment"
                             android:defaultValue="center" />
 
+                        <app.morphe.extension.boostforreddit.giphy.MediaTapActionPreference
+                            android:icon="@drawable/ic_photo_outline_24dp"
+                            android:key="morphe_boost_direct_reddit_gif_tap_action"
+                            android:title="Direct Reddit GIF tap action"
+                            android:summary="Image viewer"
+                            android:dialogTitle="Direct Reddit GIF tap action"
+                            android:defaultValue="image_viewer" />
+
+                        <app.morphe.extension.boostforreddit.giphy.MediaTapActionPreference
+                            android:icon="@drawable/ic_photo_outline_24dp"
+                            android:key="morphe_boost_giphy_preview_tap_action"
+                            android:title="Giphy preview tap action"
+                            android:summary="Video viewer"
+                            android:dialogTitle="Giphy preview tap action"
+                            android:defaultValue="video_viewer" />
+
+                        <app.morphe.extension.boostforreddit.giphy.MediaTapActionPreference
+                            android:icon="@drawable/ic_photo_outline_24dp"
+                            android:key="morphe_boost_static_preview_tap_action"
+                            android:title="Static preview tap action"
+                            android:summary="Image viewer"
+                            android:dialogTitle="Static preview tap action"
+                            android:defaultValue="image_viewer" />
+
                         <CheckBoxPreference
                             android:key="morphe_boost_inline_media_preview_show_source_text"
                             android:title="Show source text with preview"
@@ -98,6 +122,30 @@ val boostMorpheSettingsSkeletonPatch = resourcePatch(
                             android:summary="Center"
                             android:dialogTitle="Preview alignment"
                             android:defaultValue="center" />
+
+                        <app.morphe.extension.boostforreddit.giphy.MediaTapActionPreference
+                            android:icon="@drawable/ic_photo_outline_24dp"
+                            android:key="morphe_boost_direct_reddit_gif_tap_action"
+                            android:title="Direct Reddit GIF tap action"
+                            android:summary="Image viewer"
+                            android:dialogTitle="Direct Reddit GIF tap action"
+                            android:defaultValue="image_viewer" />
+
+                        <app.morphe.extension.boostforreddit.giphy.MediaTapActionPreference
+                            android:icon="@drawable/ic_photo_outline_24dp"
+                            android:key="morphe_boost_giphy_preview_tap_action"
+                            android:title="Giphy preview tap action"
+                            android:summary="Video viewer"
+                            android:dialogTitle="Giphy preview tap action"
+                            android:defaultValue="video_viewer" />
+
+                        <app.morphe.extension.boostforreddit.giphy.MediaTapActionPreference
+                            android:icon="@drawable/ic_photo_outline_24dp"
+                            android:key="morphe_boost_static_preview_tap_action"
+                            android:title="Static preview tap action"
+                            android:summary="Image viewer"
+                            android:dialogTitle="Static preview tap action"
+                            android:defaultValue="image_viewer" />
 
                         <CheckBoxPreference
                             android:key="morphe_boost_inline_media_preview_show_source_text"
