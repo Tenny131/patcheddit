@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.4.30 - morphe-patches-30
+
+- Add Boost Morphe settings under Advanced settings.
+- Add inline media preview toggle.
+- Add source text visibility toggle for inline previews.
+- Add preview alignment setting: left, center, or right.
+- Remove the duplicate gray `Source:` URL label under inline previews.
+- Includes previous Boost fixes from 1.4.27.
+
+## 1.4.27 - morphe-patches-27
+
+- Fix direct `i.redd.it/*.gif` links so they open through Boost's image viewer instead of being treated as broken video/GIF media.
+- Restore safer URL handling for Boost media/link flows.
+- Includes previous target SDK and inline media fixes.
+
+## 1.4.26 - morphe-patches-26
+
+- Add Boost target SDK / newer Android compatibility fixes.
+- Keep Boost stable on newer Android notification/runtime behavior.
+- Includes previous Boost media preview and download notification fixes.
+
+## 1.4.24 - morphe-patches-24
+
+- Make tapped inline Giphy/GIF previews open in Boost's viewer where possible.
+- Make static Reddit previews open in Boost's image viewer.
+- Includes previous Boost fixes for Giphy loading, direct GIF previews, v.redd.it audio, and completed download notifications.
+
 ## 1.4.23 - morphe-patches-23
 
 - Add Imgur 7.33.0.0 post-detail long-press file sharing: long-pressing an image or video now opens Android's share sheet with the actual selected media file instead of only sharing the parent Imgur link.
