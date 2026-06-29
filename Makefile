@@ -60,3 +60,8 @@ release-local-final:
 > $(MAKE) release-build VERSION="$(VERSION)"
 > $(MAKE) update-readme-sha VERSION="$(VERSION)" EXTRA_SHA_ARGS="$(EXTRA_SHA_ARGS)"
 > $(MAKE) release-gate VERSION="$(VERSION)" TAG="$(TAG)" EXTRA_GATE_ARGS="$(EXTRA_GATE_ARGS)"
+
+release-hold-gate:
+> @test -n "$(VERSION)" || (echo "Usage: make release-hold-gate VERSION=1.4.22 TAG=morphe-patches-22"; exit 1)
+> @test -n "$(TAG)" || (echo "Usage: make release-hold-gate VERSION=1.4.22 TAG=morphe-patches-22"; exit 1)
+> ./scripts/release-hold-gate.py --version "$(VERSION)" --tag "$(TAG)" $(EXTRA_HOLD_ARGS)
