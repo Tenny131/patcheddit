@@ -65,3 +65,7 @@ release-hold-gate:
 > @test -n "$(VERSION)" || (echo "Usage: make release-hold-gate VERSION=1.4.22 TAG=morphe-patches-22"; exit 1)
 > @test -n "$(TAG)" || (echo "Usage: make release-hold-gate VERSION=1.4.22 TAG=morphe-patches-22"; exit 1)
 > ./scripts/release-hold-gate.py --version "$(VERSION)" --tag "$(TAG)" $(EXTRA_HOLD_ARGS)
+
+boost-runtime-media-marker-gate:
+> @test -n "$(VERSION)" || (echo "Usage: make boost-runtime-media-marker-gate VERSION=1.4.22"; exit 1)
+> ./scripts/check-boost-runtime-media-markers.py --version "$(VERSION)" $(EXTRA_MEDIA_MARKER_ARGS)
