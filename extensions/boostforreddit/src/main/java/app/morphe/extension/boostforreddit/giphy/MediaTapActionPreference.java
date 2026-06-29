@@ -63,9 +63,14 @@ public final class MediaTapActionPreference extends ListPreference {
     }
 
     private static String defaultForKey(String key) {
-        if (key != null && (key.contains("direct_reddit_gif") || key.contains("giphy_preview"))) {
+        if (key != null && key.contains("direct_reddit_gif")) {
+            return "image_viewer";
+        }
+
+        if (key != null && key.contains("giphy_preview")) {
             return "video_viewer";
         }
+
         return "image_viewer";
     }
 

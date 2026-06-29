@@ -54,7 +54,7 @@ public final class InlineGiphyCommentPreview {
     private static final boolean DEFAULT_INLINE_MEDIA_PREVIEWS_ENABLED = true;
     private static final boolean DEFAULT_INLINE_MEDIA_PREVIEW_SHOW_SOURCE_TEXT = false;
     private static final String DEFAULT_INLINE_MEDIA_PREVIEW_ALIGNMENT = ALIGNMENT_CENTER;
-    private static final String DEFAULT_DIRECT_REDDIT_GIF_TAP_ACTION = TAP_ACTION_VIDEO_VIEWER;
+    private static final String DEFAULT_DIRECT_REDDIT_GIF_TAP_ACTION = TAP_ACTION_IMAGE_VIEWER;
     private static final String DEFAULT_GIPHY_PREVIEW_TAP_ACTION = TAP_ACTION_VIDEO_VIEWER;
     private static final String DEFAULT_STATIC_PREVIEW_TAP_ACTION = TAP_ACTION_IMAGE_VIEWER;
     private static final Map<Object, PreviewSource> PREVIEW_SOURCES = new WeakHashMap<>();
@@ -738,9 +738,15 @@ public final class InlineGiphyCommentPreview {
         // Forced image routes must avoid MediaImageActivity. That activity can reclassify
         // inline comment media through its async metadata path and bounce GIF/static URLs
         // into MediaVideoActivity. Legacy ImageActivity is the stricter image-only viewer.
-        if (openLegacyImageActivityViaBoost(activity, submission, true)) {
+        //
+        // Direct i.redd.it GIFs are a special case: ImageActivity with comment=true opens
+        // first, but immediately bounces to MediaVideoActivity. Use non-comment image mode
+        // for this direct-GIF image-viewer route while preserving comment mode for normal
+        // static inline previews.
+        boolean legacyCommentMode = !directRedditGif;
+        if (openLegacyImageActivityViaBoost(activity, submission, legacyCommentMode)) {
             if (directRedditGif) {
-                Log.d(LOG_TAG, COMMENT_DIRECT_GIF_ROUTE_MARKER + ": forced direct i.redd.it gif to comment image route");
+                Log.d(LOG_TAG, COMMENT_DIRECT_GIF_ROUTE_MARKER + ": forced direct i.redd.it gif to non-comment image route");
             }
             return true;
         }
