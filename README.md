@@ -1,96 +1,149 @@
 # Breal Morphe Patches
 
-Unofficial Morphe patch bundle for supported Android apps.
+Unofficial Morphe patch bundle for Boost for Reddit, Imgur, and related Android app fixes.
 
-This repository currently includes Boost for Reddit hotfixes and Imgur selected media sharing patches. It is derived from Patcheddit/Morphe patch work and is not an official project for any of the patched apps.
+This repository publishes a Morphe-compatible `.mpp` bundle and a small JSON feed used by Morphe Manager to discover the current release.
 
 ## Project page
 
 Canonical GitHub repository:
 
-`https://github.com/brealorg/breal-morphe-patches`
+```text
+https://github.com/brealorg/breal-morphe-patches
+```
 
 Legacy repository URLs under `breal-boost-hotfixes` currently redirect here for backwards compatibility. Do not recreate a new repository with the old name, because that may break existing redirects.
 
 ## Morphe patch source
 
-Use this source in Morphe:
+Use this raw JSON source in Morphe Manager:
 
-`https://raw.githubusercontent.com/brealorg/breal-morphe-patches/main/patches-bundle.json`
+```text
+https://raw.githubusercontent.com/brealorg/breal-morphe-patches/main/patches-bundle.json
+```
 
 Legacy source URL, kept working through GitHub redirect:
 
-`https://raw.githubusercontent.com/brealorg/breal-boost-hotfixes/main/patches-bundle.json`
-
-Morphe uses this JSON source to find and download the current `.mpp` patch bundle.
+```text
+https://raw.githubusercontent.com/brealorg/breal-boost-hotfixes/main/patches-bundle.json
+```
 
 Do not use the normal GitHub project page as the Morphe source. The GitHub project page is for humans; the raw `patches-bundle.json` URL is for Morphe.
 
 ## Current release
 
-Current public bundle:
+| Field | Value |
+|---|---|
+| Version | `1.4.40` |
+| Release tag | `morphe-patches-40` |
+| Asset | `patches-1.4.40.mpp` |
+| SHA256 | `91a993277d3f2be487f453597257893cdff8f97d91e2dc5919db0ad016228fc0` |
+| Manager JSON | `https://raw.githubusercontent.com/brealorg/breal-morphe-patches/main/patches-bundle.json` |
+| Download URL | `https://github.com/brealorg/breal-morphe-patches/releases/download/morphe-patches-40/patches-1.4.40.mpp` |
 
-`1.4.40`
+## What this bundle does
 
-Latest release asset:
+The current bundle is focused on practical hotfixes for tested app versions, especially Boost for Reddit behavior on newer Android versions.
 
-`patches-1.4.40.mpp`
+### Boost for Reddit
 
-Release tag:
+Tested against Boost for Reddit `1.12.12` / versionCode `210011212`.
 
-`morphe-patches-40`
+Included in `1.4.40`:
 
-SHA256:
+- **Comments UI**
+  - Removes the duplicate native `Comments` title row.
+  - Preserves Boost's toolbar title.
+  - Preserves the dynamic sort subtitle, such as `Best`, `Hot`, and other sort modes.
+  - Preserves dark theme behavior in comments.
 
-`91a993277d3f2be487f453597257893cdff8f97d91e2dc5919db0ad016228fc0`
+- **Runtime media tap-action settings**
+  - Adds configurable handling for direct Reddit GIFs.
+  - Adds configurable handling for Giphy previews.
+  - Adds configurable handling for static previews.
+  - Keeps media opening behavior closer to Boost's internal viewer flow.
 
-## Included patches
+- **Deleted Reddit gallery metadata restore**
+  - Improves recovery of deleted Reddit gallery metadata where possible.
 
-### Boost for Reddit hotfixes
+- **Safer subreddit listing fallback**
+  - Improves fallback handling for subreddit listing edge cases.
 
-Tested against Boost for Reddit 1.12.12.
+Earlier Boost fixes carried forward:
 
-Included Boost fixes:
-
-- v.redd.it video sharing/download audio fix
-- faster Giphy loading via direct `media.giphy.com` MP4 fallback
-- inline Giphy previews in comments
-- inline previews for direct `.gif` links such as `i.redd.it/*.gif`
-- improved inline preview layout/collapse behavior
-- completed download notifications on a separate default-importance Android notification channel while progress notifications remain low-priority
+- Android 15+ / target SDK 35 compatibility work.
+- Navigation bar overlap fixes for media viewer and drawer.
+- Completed-download notification visibility fixes.
+- Separate default-importance notification channel for completed downloads.
+- v.redd.it audio sharing/download fixes.
+- Direct `i.redd.it` GIF handling.
+- Inline Giphy and direct GIF preview fixes.
+- Slow Giphy loading fix.
+- Archive / undelete related Boost fixes where applicable.
 
 ### Imgur selected media sharing
 
-Tested against Imgur 7.33.0.0.
+Tested against Imgur `7.33.0.0`.
 
 Included Imgur patches:
 
-- selected media file sharing:
-  - long-pressing an image or video in post detail shares the actual selected media file
-  - opens Android's share sheet with the real image/video file, not just the parent Imgur link
-  - replaces Imgur's Download share action with direct private cached file sharing
-  - caches selected media privately before opening Android's share sheet
-  - does not permanently save the file to `/sdcard/Download/Imgur`
-- selected media URL sharing:
-  - default mode shares the raw media/download URL
-  - optional mode shares the selected item permalink
-  - keeps URL/link sharing separate from file sharing
+- **Selected media file sharing**
+  - Long-pressing an image or video in post detail shares the actual selected media file.
+  - Opens Android's share sheet with the real image/video file, not just the parent Imgur link.
+  - Replaces Imgur's Download share action with direct private cached file sharing.
+  - Caches selected media privately before opening Android's share sheet.
+  - Does not permanently save the file to `/sdcard/Download/Imgur`.
 
-## Compatibility and scope
+- **Selected media URL sharing**
+  - Default mode shares the raw media/download URL.
+  - Optional mode shares the selected item permalink.
+  - Keeps URL/link sharing separate from file sharing.
 
-This bundle is intended as a practical hotfix/source bundle for Morphe users. It is not guaranteed to be stable across app versions other than the versions tested.
+## Tested app versions
 
-Current known tested app versions:
+| App | Package | Version |
+|---|---|---|
+| Boost for Reddit | `com.rubenmayayo.reddit` | `1.12.12` / versionCode `210011212` |
+| Imgur | `com.imgur.mobile` | `7.33.0.0` / versionCode `73300` |
 
-- Boost for Reddit 1.12.12
-- Imgur 7.33.0.0
+Compatibility with other app versions is not guaranteed.
 
-## Attribution
+## Verification
+
+Release `1.4.40` was published and verified with:
+
+- Release tag `morphe-patches-40` pointing to the 1.4.40 release commit.
+- GitHub release asset SHA256 matching the local built MPP.
+- Raw `patches-bundle.json` returning version `1.4.40`.
+- Raw `patches-bundle.json` pointing to the `morphe-patches-40` asset.
+- Downloaded release asset SHA256 matching:
+
+```text
+91a993277d3f2be487f453597257893cdff8f97d91e2dc5919db0ad016228fc0
+```
+
+## Development notes
+
+This repository contains experimental and release-candidate work in local/work branches. Only the published release JSON and GitHub release asset should be treated as the current user-facing bundle.
+
+### Deferred work
+
+16K / WL04R builder and runtime work is intentionally **not included** in `1.4.40`.
+
+That work is preserved separately for a later `1.4.41` scope.
+
+## Attribution and license
 
 This repository is derived from Patcheddit/Morphe patch work.
 
 Author metadata in the patch bundle currently credits:
 
-`wchill + brealorg`
+```text
+wchill + brealorg
+```
 
 Additional license conditions under GPL section 7 apply. See `LICENSE` for attribution and project name restrictions.
+
+## Disclaimer
+
+This is an unofficial community patch bundle. It is provided as-is and is intended for tested app versions only. Use at your own risk.
