@@ -1,4 +1,4 @@
-rootProject.name = "patcheddit"
+rootProject.name = "breal-morphe-patches"
 
 pluginManagement {
     repositories {

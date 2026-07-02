@@ -22,7 +22,7 @@ internal const val OKHTTP_EXTENSION_CLASS_DESCRIPTOR = "Lapp/morphe/extension/bo
 @Suppress("unused")
 val interceptImgurRequests = bytecodePatch(
     name = "Automatically undelete Imgur images",
-    default = true
+    default = false
 ) {
     dependsOn(sharedExtensionPatch, interceptHttpRequests)
     compatibleWith(*BoostCompatible)

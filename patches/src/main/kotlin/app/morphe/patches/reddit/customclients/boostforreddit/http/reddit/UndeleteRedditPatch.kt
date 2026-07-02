@@ -41,7 +41,7 @@ internal const val EXTRA_EMOJI_GETTER = "getExtraEmoji"
 @Suppress("unused")
 val undeleteRedditPatch = bytecodePatch(
     name = "Automatically undelete Reddit content",
-    default = true
+    default = false
 ) {
     dependsOn(sharedExtensionPatch, interceptHttpRequests)
     compatibleWith(*BoostCompatible)

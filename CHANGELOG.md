@@ -1,3 +1,55 @@
+# Changelog
+
+
+## 1.4.43
+
+- Fix Boost comment code block rendering so Reddit fenced code preserves line breaks.
+- Split multiline Reddit <code> HTML into separate Boost native code blocks so prose such as 'Or:' stays outside the code block.
+
+## 1.4.30 - morphe-patches-30
+
+- Add Boost Morphe settings under Advanced settings.
+- Add inline media preview toggle.
+- Add source text visibility toggle for inline previews.
+- Add preview alignment setting: left, center, or right.
+- Remove the duplicate gray `Source:` URL label under inline previews.
+- Includes previous Boost fixes from 1.4.27.
+
+## 1.4.27 - morphe-patches-27
+
+- Fix direct `i.redd.it/*.gif` links so they open through Boost's image viewer instead of being treated as broken video/GIF media.
+- Restore safer URL handling for Boost media/link flows.
+- Includes previous target SDK and inline media fixes.
+
+## 1.4.26 - morphe-patches-26
+
+- Add Boost target SDK / newer Android compatibility fixes.
+- Keep Boost stable on newer Android notification/runtime behavior.
+- Includes previous Boost media preview and download notification fixes.
+
+## 1.4.24 - morphe-patches-24
+
+- Make tapped inline Giphy/GIF previews open in Boost's viewer where possible.
+- Make static Reddit previews open in Boost's image viewer.
+- Includes previous Boost fixes for Giphy loading, direct GIF previews, v.redd.it audio, and completed download notifications.
+
+## 1.4.23 - morphe-patches-23
+
+- Add Imgur 7.33.0.0 post-detail long-press file sharing: long-pressing an image or video now opens Android's share sheet with the actual selected media file instead of only sharing the parent Imgur link.
+- Replace Imgur's Download share action with direct private cached file sharing.
+- Keep Imgur URL/link sharing separate from file sharing; selected-media URL sharing remains available.
+- Includes previous Boost fixes from 1.4.22.
+
+## 1.4.22 - morphe-patches-22
+
+- Fix Boost opening Reddit comment video player links in WebView by normalizing reddit.com/link/.../video/.../player URLs to v.redd.it so they open in Boost's native video player.
+- Includes previous Boost fixes for v.redd.it audio in downloads/shares, faster Giphy loading, inline Giphy previews, direct GIF previews, preview layout handling, and completed download notifications.
+- Imgur compatibility is included for Imgur 7.33.0.0.
+
+---
+
+## Upstream Patcheddit changelog
+
 # [1.4.0](https://github.com/wchill/patcheddit/compare/v1.3.1...v1.4.0) (2026-04-07)
 
 

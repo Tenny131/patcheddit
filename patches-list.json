@@ -1,5 +1,5 @@
 {
-  "version": "1.4.0",
+  "version": "v1.4.43",
   "patches": [
     {
       "name": "Add archive links to context menu",
@@ -18,7 +18,7 @@
     {
       "name": "Automatically undelete Imgur images",
       "description": null,
-      "use": true,
+      "use": false,
       "dependencies": [
         "BytecodePatch",
         "BytecodePatch"
@@ -33,10 +33,36 @@
     {
       "name": "Automatically undelete Reddit content",
       "description": null,
-      "use": true,
+      "use": false,
       "dependencies": [
         "BytecodePatch",
         "BytecodePatch"
+      ],
+      "compatiblePackages": {
+        "com.rubenmayayo.reddit": [
+          "1.12.12"
+        ]
+      },
+      "options": []
+    },
+    {
+      "name": "Boost Morphe settings",
+      "description": "Adds Boost Morphe settings for inline media previews, source text visibility, and preview alignment.",
+      "use": false,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.rubenmayayo.reddit": [
+          "1.12.12"
+        ]
+      },
+      "options": []
+    },
+    {
+      "name": "Disable Boost Crashlytics startup network calls",
+      "description": "Disables Boost's Crashlytics startup initialization while keeping Firebase Analytics and other Firebase components.",
+      "use": true,
+      "dependencies": [
+        "ResourcePatch"
       ],
       "compatiblePackages": {
         "com.rubenmayayo.reddit": [
@@ -63,7 +89,9 @@
       "name": "Disable ads",
       "description": null,
       "use": true,
-      "dependencies": [],
+      "dependencies": [
+        "ResourcePatch"
+      ],
       "compatiblePackages": {
         "com.rubenmayayo.reddit": [
           "1.12.12"
@@ -190,6 +218,61 @@
       "options": []
     },
     {
+      "name": "Fix Boost code block rendering",
+      "description": "Preserves multiline Reddit code blocks by normalizing inline multiline <code> HTML to Boost's native <pre> renderer path.",
+      "use": true,
+      "dependencies": [
+        "BytecodePatch"
+      ],
+      "compatiblePackages": {
+        "com.rubenmayayo.reddit": [
+          "1.12.12"
+        ]
+      },
+      "options": []
+    },
+    {
+      "name": "Fix Boost comments Lemmy-style toolbar UI",
+      "description": "Removes the duplicate native comments title by disabling the SlidrTheme window title/actionbar layer while preserving Boost's selected light/dark theme, toolbar title, and dynamic sort subtitle.",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.rubenmayayo.reddit": [
+          "1.12.12"
+        ]
+      },
+      "options": []
+    },
+    {
+      "name": "Fix Boost navigation bar overlap",
+      "description": "Adds runtime system bar inset handling for Boost bottom controls and drawer content on Android 15+ target SDK builds.",
+      "use": true,
+      "dependencies": [
+        "BytecodePatch"
+      ],
+      "compatiblePackages": {
+        "com.rubenmayayo.reddit": [
+          "1.12.12"
+        ]
+      },
+      "options": []
+    },
+    {
+      "name": "Fix Boost target SDK 35 compatibility",
+      "description": "Sets Boost for Reddit's target SDK to 35 and fixes BillingClient receiver registration for newer Android versions.",
+      "use": false,
+      "dependencies": [
+        "ResourcePatch",
+        "BytecodePatch"
+      ],
+      "compatiblePackages": {
+        "com.rubenmayayo.reddit": [
+          "1.12.12"
+        ]
+      },
+      "options": []
+    },
+    {
       "name": "Fix Redgifs API",
       "description": null,
       "use": true,
@@ -241,6 +324,18 @@
       "options": []
     },
     {
+      "name": "Fix download completed notification visibility",
+      "description": "Moves completed download notifications to a separate default-importance channel so download completion is visible while progress notifications remain low-priority.",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.rubenmayayo.reddit": [
+          "1.12.12"
+        ]
+      },
+      "options": []
+    },
+    {
       "name": "Fix missing audio in video downloads",
       "description": "Fixes audio missing in videos downloaded from v.redd.it.",
       "use": true,
@@ -266,6 +361,18 @@
         ],
         "com.laurencedawson.reddit_sync.pro": null,
         "com.laurencedawson.reddit_sync.dev": null
+      },
+      "options": []
+    },
+    {
+      "name": "Fix slow Giphy loading",
+      "description": "Bypasses Boost's slow Giphy API resolver and uses Boost's direct media.giphy.com MP4 fallback for Giphy posts.",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.rubenmayayo.reddit": [
+          "1.12.12"
+        ]
       },
       "options": []
     },
@@ -404,6 +511,56 @@
         ],
         "com.laurencedawson.reddit_sync.pro": null,
         "com.laurencedawson.reddit_sync.dev": null
+      },
+      "options": []
+    },
+    {
+      "name": "Share selected media",
+      "description": "Makes Imgur direct media sharing use the selected media item instead of the parent gallery. Can share either the raw media/download URL or the Imgur item permalink.",
+      "use": true,
+      "dependencies": [],
+      "compatiblePackages": {
+        "com.imgur.mobile": [
+          "7.33.0.0"
+        ]
+      },
+      "options": [
+        {
+          "key": "link-mode",
+          "title": "Link mode",
+          "description": "raw_media shares the direct media/download URL. item_permalink shares the Imgur gallery URL with the selected media fragment.",
+          "required": false,
+          "type": "kotlin.String",
+          "default": "raw_media",
+          "values": null
+        }
+      ]
+    },
+    {
+      "name": "Share selected media file",
+      "description": "Makes Imgur post-detail media long-press share the selected media file. Also replaces Imgur's Download share action with direct file sharing. The selected media is cached privately, shared with Android's share sheet, and is not saved permanently to /sdcard/Download/Imgur.",
+      "use": true,
+      "dependencies": [
+        "BytecodePatch"
+      ],
+      "compatiblePackages": {
+        "com.imgur.mobile": [
+          "7.33.0.0"
+        ]
+      },
+      "options": []
+    },
+    {
+      "name": "Show inline Giphy previews in comments",
+      "description": "Adds inline animated Giphy previews below Boost comment text for Reddit Giphy markdown and Giphy links.",
+      "use": true,
+      "dependencies": [
+        "BytecodePatch"
+      ],
+      "compatiblePackages": {
+        "com.rubenmayayo.reddit": [
+          "1.12.12"
+        ]
       },
       "options": []
     },
