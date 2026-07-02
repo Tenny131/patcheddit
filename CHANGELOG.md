@@ -1,5 +1,11 @@
 # Changelog
 
+
+## 1.4.43
+
+- Fix Boost comment code block rendering so Reddit fenced code preserves line breaks.
+- Split multiline Reddit <code> HTML into separate Boost native code blocks so prose such as 'Or:' stays outside the code block.
+
 ## 1.4.30 - morphe-patches-30
 
 - Add Boost Morphe settings under Advanced settings.
