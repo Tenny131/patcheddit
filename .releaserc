@@ -28,7 +28,7 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "./gradlew :patches:generatePatchesList && jq '.version=\"v${nextRelease.version}\"' patches-list.json > patches-list.json.tmp && mv patches-list.json.tmp patches-list.json"
+        "prepareCmd": "./tools/check-patches-list-feed.sh --write \"v${nextRelease.version}\" || { git diff -- patches-list.json; exit 1; }"
       }
     ],
     [
