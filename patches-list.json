@@ -18,7 +18,7 @@
     {
       "name": "Automatically undelete Imgur images",
       "description": null,
-      "use": true,
+      "use": false,
       "dependencies": [
         "BytecodePatch",
         "BytecodePatch"
@@ -33,7 +33,7 @@
     {
       "name": "Automatically undelete Reddit content",
       "description": null,
-      "use": true,
+      "use": false,
       "dependencies": [
         "BytecodePatch",
         "BytecodePatch"
